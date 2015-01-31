@@ -23,10 +23,11 @@ if __name__ == '__main__':
 	from cql_builder.assignment import Set
 	from cql_builder.condition import *
 
+	
 	keyspace = 'test_keyspace'
 	column_family = 'people'
 	session = Cluster(['localhost']).connect()
-
+	'''
 	insert = (QueryBuilder.insert_into(keyspace, column_family)
 		.values(first='Jon', last='Jengo', age=32)
 		.using(ttl=10800)
@@ -34,12 +35,13 @@ if __name__ == '__main__':
 
 	statement, args = insert.statement()	
 	print statement, args
-	session.execute(statement, args)
+	#session.execute(statement, args)
+	'''
 
 	update = (QueryBuilder.update(keyspace, column_family)
 		.using(ttl=10800)
-		.set(Set(age=45))
-		.where(all_eq(last='Jengo', first='Jon'))
+		.set(Set(age=35))
+		.where(all_eq())
 	)
 	
 	statement, args = update.statement()

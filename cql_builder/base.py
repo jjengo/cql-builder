@@ -13,9 +13,13 @@ class Assignment(QueryItem):
 class Condition(QueryItem):
 	@property
 	def values(self):
-		raise NotImplementedError('Conditional: values not implemented')
+		raise NotImplementedError('Condition: values not implemented')
+	def validate(self):
+		raise NotImplementedError('Condition: validate not implemented')
 
 class Statement(QueryItem):
 	def statement(self, consistency=Level.ONE):
 		raise NotImplementedError('QueryStatement: statement not implemented')
 
+class ValidationError(ValueError):
+	pass
