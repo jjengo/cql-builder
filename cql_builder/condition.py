@@ -52,6 +52,16 @@ class In(Condition):
 	def values(self):
 		return self.collection
 
+class All(Condition):
+	def __init__(self, **kwargs):
+		self.kwargs = kwargs
+	@property
+	def cql(self):
+		return ' AND '.join(map(lambda x: '{}=%s'.format(x), self.kwargs.keys()))
+	@property
+	def values(self):
+		return self.kwargs.values()
+
 # Condition helpers.
 def eq(name, value):
 	return Comparison(name, value, '=')
@@ -70,3 +80,6 @@ def lte(name, value):
 
 def within(name, collection):
 	return In(name, collection)
+
+def all_eq(**kwargs):
+	return All(**kwargs)
