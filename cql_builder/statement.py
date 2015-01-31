@@ -1,23 +1,19 @@
 from cassandra import ConsistencyLevel as Level
 from cassandra.query import SimpleStatement
-from cql_builder.base import Statement
+from cql_builder.base import Statement, ValidationError
 from cql_builder.condition import Where, Using
+from cql_builder.assignment import Set
 
 class Insert(Statement):
 
 	def __init__(self, keyspace, column_family):
-		self.keyspace = keyspace
-		self.column_family = column_family
-		self.value_map = {}
+		Statement.__init__(self, keyspace, column_family)
+		self.assignment = None
 		self.options = None
 		self.not_exists = False
 
-	def value(self, name, value):
-		self.value_map[name] = value
-		return self
-
 	def values(self, **kwargs):
-		self.value_map = kwargs
+		self.assignment = Set(**kwargs)
 		return self
 
 	def using(self, **kwargs):
@@ -31,8 +27,8 @@ class Insert(Statement):
 	@property
 	def cql(self):
 		statement = 'INSERT INTO {}.{} ({}) VALUES ({})'
-		names = ', '.join(self.value_map.keys())
-		values = ', '.join(map(lambda x: '%s', self.value_map.keys()))
+		names = ', '.join(self.assignment.kwargs.keys())
+		values = ', '.join('%s' for k in self.assignment.values)
 		query = statement.format(self.keyspace, self.column_family, names, values)
 		if self.not_exists:
 			query = '{} {}'.format(query, 'IF NOT EXISTS')
@@ -41,17 +37,22 @@ class Insert(Statement):
 		return query
 
 	def statement(self, consistency=Level.ONE):
+		self.validate()
 		insert = SimpleStatement(self.cql, consistency_level=consistency)
-		args = self.value_map.values()
+		args = list(self.assignment.values)
 		if self.options:
 			args.extend(self.options.values)
 		return insert, args
 
+	def validate(self):
+		Statement.validate(self)
+		if not self.assignment:
+			raise ValidationError('insert values missing')
+
 class Update(Statement):
 
 	def __init__(self, keyspace, column_family):
-		self.keyspace = keyspace
-		self.column_family = column_family
+		Statement.__init__(self, keyspace, column_family)
 		self.assignment = None
 		self.conditions = None
 		self.options = None
@@ -77,8 +78,16 @@ class Update(Statement):
 		return query
 
 	def statement(self, consistency=Level.ONE):
+		self.validate()
 		update = SimpleStatement(self.cql, consistency_level=consistency)
 		args = self.options.values if self.options else []
 		args.extend(self.assignment.values)
 		args.extend(self.conditions.values)
 		return update, args
+
+	def validate(self):
+		Statement.validate(self)
+		if not self.assignment:
+			raise ValidationError('update assignment missing')
+		if not self.conditions:
+			raise ValidationError('update conditions missing')
