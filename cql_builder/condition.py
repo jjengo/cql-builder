@@ -26,7 +26,7 @@ class Using(Condition):
 		self.validate()
 	@property
 	def cql(self):
-		pairs = ' AND '.join(['{} %s'.format(k) for k in self.options.keys()])
+		pairs = ' AND '.join('{} %s'.format(k) for k in self.options.keys())
 		return 'USING {}'.format(pairs)
 	@property
 	def values(self):
@@ -63,7 +63,7 @@ class In(Condition):
 		self.validate()
 	@property
 	def cql(self):
-		in_list = ', '.join(['%s' for k in self.value])
+		in_list = ', '.join('%s' for k in self.value)
 		return '{} IN ({})'.format(self.name, in_list)
 	@property
 	def values(self):
@@ -80,7 +80,7 @@ class All(Condition):
 		self.validate()
 	@property
 	def cql(self):
-		return ' AND '.join(['{}=%s'.format(k) for k in self.kwargs.keys()])
+		return ' AND '.join('{}=%s'.format(k) for k in self.kwargs.keys())
 	@property
 	def values(self):
 		return self.kwargs.values()

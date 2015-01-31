@@ -1,6 +1,6 @@
 from cassandra import ConsistencyLevel as Level
 from cassandra.query import SimpleStatement
-from cql_builder.base import QueryItem, Statement
+from cql_builder.base import Statement
 from cql_builder.condition import Where, Using
 
 class Insert(Statement):
