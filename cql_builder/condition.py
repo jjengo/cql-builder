@@ -52,6 +52,8 @@ class Comparison(Condition):
 	def values(self):
 		return [self.value]
 	def validate(self):
+		if not self.compare:
+			raise ValidationError('comparison operator: {}'.format(self.compare))
 		if not self.name or not self.value:
 			raise ValidationError('{}{}{}'.format(self.name, self.compare, self.value))
 
@@ -71,7 +73,7 @@ class In(Condition):
 	def validate(self):
 		if not self.name or not self.value:
 			raise ValidationError('{} IN {}'.format(self.name, self.value))
-		if not isinstance(self.value, list) or not isinstance(self.value, set):
+		if not isinstance(self.value, list) and not isinstance(self.value, set):
 			raise ValidationError('{} is not a list or set'.format(self.value))
 
 class All(Condition):

@@ -35,7 +35,7 @@ class Add(Assignment):
 	def validate(self):
 		if not self.name or not self.value:
 			raise ValidationError('{}={} + {}'.format(self.name, self.name, self.value))
-		if not isinstance(self.value, list) or not isinstance(self.value, set):
+		if not isinstance(self.value, list) and not isinstance(self.value, set):
 			raise ValidationError('{} is not a list or set'.format(self.value))
 
 # name = name - {value, value, ...}
@@ -55,5 +55,5 @@ class Subtract(Assignment):
 	def validate(self):
 		if not self.name or not self.value:
 			raise ValidationError('{}={} - {}'.format(self.name, self.name, self.value))
-		if not isinstance(self.value, list) or not isinstance(self.value, set):
+		if not isinstance(self.value, list) and not isinstance(self.value, set):
 			raise ValidationError('{} if not a list or set'.format(self.value))
