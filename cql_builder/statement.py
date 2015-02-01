@@ -33,7 +33,7 @@ class Insert(Statement):
 		if self.not_exists:
 			query = '{} {}'.format(query, 'IF NOT EXISTS')
 		if self.options:
-			query = '{} {}'.format(query, self.options.cql)		
+			query = '{} USING {}'.format(query, self.options.cql)		
 		return query
 
 	def statement(self, consistency=Level.ONE):
@@ -72,7 +72,7 @@ class Update(Statement):
 	def cql(self):
 		query = 'UPDATE {}.{}'.format(self.keyspace, self.column_family)
 		if self.options:
-			query = '{} {}'.format(query, self.options.cql)
+			query = '{} USING {}'.format(query, self.options.cql)
 		query = '{} SET {} WHERE {}'.format(query, self.assignment.cql, self.conditions.cql)
 		return query
 
