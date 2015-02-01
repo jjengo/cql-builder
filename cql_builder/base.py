@@ -4,8 +4,6 @@ class QueryItem(object):
 	@property
 	def cql(self):
 		raise NotImplementedError('cql not implemented')
-	def validate(self):
-		raise NotImplementedError('validate not implemented')
 
 class Assignment(QueryItem):
 	@property
