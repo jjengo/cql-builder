@@ -1,9 +1,10 @@
-from cql_builder.base import Condition
+from cql_builder.base import Condition, ValidationError
 
 # condition AND condition AND ...
 class Where(Condition):
 	def __init__(self, *args):
 		self.conditions = args
+		self.validate()
 	@property
 	def cql(self):
 		return ' AND '.join(cond.cql for cond in self.conditions)
@@ -13,6 +14,9 @@ class Where(Condition):
 		for cond in self.conditions:
 			value_list.extend(cond.values)
 		return value_list
+	def validate(self):
+		if self.conditions is None:
+			raise ValidationError('conditions: {}'.format(self.conditions))
 
 # USING option AND option AND ...
 class Using(Condition):
@@ -44,6 +48,7 @@ class In(Condition):
 	def __init__(self, name, value):
 		self.name = name
 		self.value = value
+		self.validate()
 	@property
 	def cql(self):
 		in_list = ', '.join('%s' for k in self.value)
@@ -51,16 +56,25 @@ class In(Condition):
 	@property
 	def values(self):
 		return self.value
+	def validate(self):
+		if self.value is None:
+			raise ValidationError('values: {}'.format(self.value))
+		if not isinstance(self.value, set) and not isinstance(self.value, list):
+			raise ValidationError('{} is not a set or list'.format(self.value))
 
 class All(Condition):
 	def __init__(self, **kwargs):
 		self.kwargs = kwargs
+		self.validate()
 	@property
 	def cql(self):
 		return ' AND '.join('{}=%s'.format(k) for k in self.kwargs.keys())
 	@property
 	def values(self):
 		return self.kwargs.values()
+	def validate(self):
+		if self.kwargs is None:
+			raise ValidationError('values: {}'.format(self.kwargs))
 
 # Condition helpers.
 def eq(name, value):

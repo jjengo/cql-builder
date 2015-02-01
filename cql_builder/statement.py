@@ -1,6 +1,6 @@
 from cassandra import ConsistencyLevel as Level
 from cassandra.query import SimpleStatement
-from cql_builder.base import Statement, ValidationError
+from cql_builder.base import Statement, Assignment, ValidationError
 from cql_builder.condition import Where, Using
 from cql_builder.assignment import Set
 
@@ -45,9 +45,8 @@ class Insert(Statement):
 		return insert, args
 
 	def validate(self):
-		Statement.validate(self)
-		if not self.assignment:
-			raise ValidationError('insert values missing')
+		if self.assignment is None:
+			raise ValidationError('insert assignment: {}'.format(self.assignment))
 
 class Update(Statement):
 
@@ -86,8 +85,7 @@ class Update(Statement):
 		return update, args
 
 	def validate(self):
-		Statement.validate(self)
-		if not self.assignment:
-			raise ValidationError('update assignment missing')
-		if not self.conditions:
-			raise ValidationError('update conditions missing')
+		if self.conditions is None:
+			raise ValidationError('update conditions: {}'.format(self.conditions))
+		if self.assignment is None or not isinstance(self.assignment, Assignment):
+			raise ValidationError('update assignment: {}'.format(self.assignment))

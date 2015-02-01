@@ -22,10 +22,7 @@ class Statement(QueryItem):
 	def statement(self, consistency=Level.ONE):
 		raise NotImplementedError('statement not implemented')
 	def validate(self):
-		if not self.keyspace:
-			raise ValidationError('keyspace={}'.format(self.keyspace))
-		if not self.column_family:
-			raise ValidationError('column_family={}'.format(self.column_family))
+		raise NotImplementedError('validate not implemented')
 
 class ValidationError(ValueError):
 	pass
