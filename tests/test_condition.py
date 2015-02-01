@@ -1,8 +1,8 @@
 import unittest
 from unittest import TestCase
 from cql_builder.base import ValidationError
-from cql_builder.condition import Comparison, All, In, Where, Using
-from cql_builder.condition import eq, gt, gte, lt, lte, within, all_eq
+from cql_builder.condition import All, In, Where, Using
+from cql_builder.condition import eq, gt, gte, lt, lte
 
 class TestComparison(TestCase):
 
