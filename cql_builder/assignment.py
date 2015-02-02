@@ -11,9 +11,22 @@ class Set(Assignment):
 	def values(self):
 		return self.kwargs.values()
 
+# names['foo'] = 'bar'
+# names[2] = 'foo'
+class SetAt(Assignment):
+	def __init__(self, name, key, value):
+		self.name = name
+		self.key = key
+		self.value = value
+	@property
+	def cql(self):
+		return '{}[%s] = %s'.format(self.name)
+	@property
+	def values(self):
+		return [self.key, self.value]
+
 # name = name + {value, value, ...}
 # name = name + [value, value, ...]
-# TODO - check maps
 class Add(Assignment):
 	def __init__(self, name, value):
 		self.name = name
@@ -27,7 +40,6 @@ class Add(Assignment):
 
 # name = name - {value, value, ...}
 # name = name - [value, value, ...]
-# TODO check maps
 class Subtract(Assignment):
 	def __init__(self, name, value):
 		self.name = name
