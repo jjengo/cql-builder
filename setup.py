@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(name='cql-builder',
       version='0.0.1',
-      description="Generic data modeling and validation",
+      description="CQL generation tool",
       long_description=""" """,
       classifiers=[
             'Intended Audience :: Developers',
