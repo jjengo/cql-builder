@@ -1,7 +1,7 @@
 import unittest
 from unittest import TestCase
 from cql_builder.base import ValidationError
-from cql_builder.condition import All, In, Where, Using
+from cql_builder.condition import AllEqual, In, Where, Using
 from cql_builder.condition import eq, gt, gte, lt, lte
 
 class TestComparison(TestCase):
@@ -40,13 +40,13 @@ class TestAll(TestCase):
 
 	def test_eq_single(self):
 		kwargs = {'last': 'foo'}
-		cond = All(**kwargs)
+		cond = AllEqual(**kwargs)
 		self.assertEquals(cond.cql, '{}=%s'.format(*kwargs.keys()))
 		self.assertEquals(cond.values, kwargs.values())
 
 	def test_eq_multi(self):
 		kwargs = {'first': 'foo', 'last': 'bar'}
-		cond = All(**kwargs)
+		cond = AllEqual(**kwargs)
 		self.assertEquals(cond.cql, '{}=%s AND {}=%s'.format(*kwargs.keys()))
 		self.assertEquals(cond.values, kwargs.values())
 
@@ -72,13 +72,13 @@ class TestUsing(TestCase):
 	 
 	def test_option_single(self):
 		cond = Using(ttl=3600)
-		self.assertEquals(cond.cql, 'TTL %s')
+		self.assertEquals(cond.cql, 'USING TTL %s')
 		self.assertEquals(cond.values, [3600])
 
 	def test_option_multi(self):
 		kwargs = {'TTL': 3600, 'TIMESTAMP': 3600}
 		cond = Using(**kwargs)
-		self.assertEquals(cond.cql, '{} %s AND {} %s'.format(*kwargs.keys()))
+		self.assertEquals(cond.cql, 'USING {} %s AND {} %s'.format(*kwargs.keys()))
 		self.assertEquals(cond.values, kwargs.values())
 
 class TestWhere(TestCase):
@@ -96,8 +96,9 @@ class TestWhere(TestCase):
 		self.assertEquals(where.cql, ' AND '.join(cond.cql for cond in conditions))
 		self.assertEquals(where.values, values)
 
-	def test_no_conditions(self):
-		self.assertRaises(ValidationError, Where, None)
+	def test_invalid_condition_type(self):
+		conditions = ['foo']
+		self.assertRaises(ValidationError, Where, *conditions)
 
 	def test_none_condition(self):
 		conditions = [eq('name', 'foo'), None]

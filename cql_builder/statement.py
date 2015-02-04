@@ -1,8 +1,9 @@
 from cassandra import ConsistencyLevel as Level
 from cassandra.query import SimpleStatement
 from cql_builder.base import Statement, Assignment, ValidationError
-from cql_builder.condition import Where, Using
+from cql_builder.condition import Where, Using, Limit
 from cql_builder.assignment import Set
+from cql_builder.selection import Columns, Count, All
 
 class Insert(Statement):
 
@@ -26,18 +27,18 @@ class Insert(Statement):
 
 	@property
 	def cql(self):
+		self.validate()
 		statement = 'INSERT INTO {}.{} ({}) VALUES ({})'
 		names = ', '.join(self.assignment.kwargs.keys())
 		values = ', '.join('%s' for k in self.assignment.values)
 		query = statement.format(self.keyspace, self.column_family, names, values)
 		if self.not_exists:
-			query = '{} {}'.format(query, 'IF NOT EXISTS')
+			query = '{} IF NOT EXISTS'.format(query)
 		if self.options:
-			query = '{} USING {}'.format(query, self.options.cql)		
+			query = '{} {}'.format(query, self.options.cql)		
 		return query
 
 	def statement(self, consistency=Level.ONE):
-		self.validate()
 		insert = SimpleStatement(self.cql, consistency_level=consistency)
 		args = list(self.assignment.values)
 		if self.options:
@@ -70,14 +71,14 @@ class Update(Statement):
 
 	@property
 	def cql(self):
+		self.validate()
 		query = 'UPDATE {}.{}'.format(self.keyspace, self.column_family)
 		if self.options:
-			query = '{} USING {}'.format(query, self.options.cql)
+			query = '{} {}'.format(query, self.options.cql)
 		query = '{} SET {} WHERE {}'.format(query, self.assignment.cql, self.conditions.cql)
 		return query
 
 	def statement(self, consistency=Level.ONE):
-		self.validate()
 		update = SimpleStatement(self.cql, consistency_level=consistency)
 		args = self.options.values if self.options else []
 		args.extend(self.assignment.values)
@@ -87,5 +88,59 @@ class Update(Statement):
 	def validate(self):
 		if self.conditions is None:
 			raise ValidationError('update conditions: {}'.format(self.conditions))
-		if self.assignment is None or not isinstance(self.assignment, Assignment):
+		if self.assignment is None:
 			raise ValidationError('update assignment: {}'.format(self.assignment))
+		if not isinstance(self.assignment, Assignment):
+			raise ValidationError('assignment {!r} must be of the type Assignment'.format(self.assignment))
+
+class Select(Statement):
+
+	def __init__(self, keyspace, column_family):
+		Statement.__init__(self, keyspace, column_family)
+		self.selection = None
+		self.conditions = None
+		self.lim = None
+
+	def columns(self, *args):
+		self.selection = Columns(*args)
+		return self
+
+	def all(self):
+		self.selection = All()
+		return self
+
+	def count(self):
+		self.selection = Count()
+		return self
+
+	def where(self, *args):
+		self.conditions = Where(*args)
+		return self
+
+	def limit(self, value):
+		self.lim = Limit(value)
+		return self
+
+	@property
+	def cql(self):
+		self.validate()
+		statement = 'SELECT {} FROM {}.{}'
+		query = statement.format(self.selection.cql, self.keyspace, self.column_family)
+		if self.conditions:
+			query = '{} WHERE {}'.format(query, self.conditions.cql)
+		if self.lim:
+			query = '{} {}'.format(query, self.lim.cql)
+		return query
+
+	def statement(self, consistency=Level.ONE):
+		select = SimpleStatement(self.cql, consistency_level=consistency)
+		args = []
+		if self.conditions:
+			args.extend(self.conditions.values)
+		if self.lim:
+			args.extend(self.lim.values)
+		return select, args
+
+	def validate(self):
+		if self.selection is None:
+			raise ValidationError('select selection: {}'.format(self.selection))

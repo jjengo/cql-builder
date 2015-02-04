@@ -24,5 +24,8 @@ class Statement(QueryItem):
 	def validate(self):
 		raise NotImplementedError('validate not implemented')
 
+class Selection(QueryItem):
+	pass
+
 class ValidationError(ValueError):
 	pass

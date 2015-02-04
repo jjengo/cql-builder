@@ -13,7 +13,7 @@ class Comparison(Condition):
 	def values(self):
 		return [self.value]
 
-class All(Condition):
+class AllEqual(Condition):
 	def __init__(self, **kwargs):
 		self.kwargs = kwargs
 	@property
@@ -42,18 +42,6 @@ class In(Condition):
 		if not isinstance(self.value, set) and not isinstance(self.value, list):
 			raise ValidationError('{} is not a set or list'.format(self.value))
 
-# USING option AND option AND ...
-class Using(Condition):
-	def __init__(self, **kwargs):
-		self.options = {k.upper(): v for k, v in kwargs.iteritems()}
-	@property
-	def cql(self):
-		pairs = ' AND '.join('{} %s'.format(k) for k in self.options.keys())
-		return '{}'.format(pairs)
-	@property
-	def values(self):
-		return self.options.values()
-
 # condition AND condition AND ...
 class Where(Condition):
 	def __init__(self, *args):
@@ -69,11 +57,34 @@ class Where(Condition):
 			value_list.extend(cond.values)
 		return value_list
 	def validate(self):
-		if self.conditions is None:
-			raise ValidationError('conditions: {}'.format(self.conditions))
 		for cond in self.conditions:
 			if cond is None:
 				raise ValidationError('condition: {}'.format(cond))
+			if not isinstance(cond, Condition):
+				raise ValidationError('condition {!r} must be of type Condition'.format(cond))
+
+# USING option AND option AND ...
+class Using(Condition):
+	def __init__(self, **kwargs):
+		self.options = {k.upper(): v for k, v in kwargs.iteritems()}
+	@property
+	def cql(self):
+		pairs = ' AND '.join('{} %s'.format(k) for k in self.options.keys())
+		return 'USING {}'.format(pairs)
+	@property
+	def values(self):
+		return self.options.values()
+
+# LIMIT value
+class Limit(Condition):
+	def __init__(self, value):
+		self.value = value
+	@property
+	def cql(self):
+		return 'LIMIT %s'
+	@property
+	def values(self):
+		return [self.value]
 
 # Condition helpers.
 def eq(name, value):
@@ -95,4 +106,4 @@ def within(name, collection):
 	return In(name, collection)
 
 def all_eq(**kwargs):
-	return All(**kwargs)
+	return AllEqual(**kwargs)

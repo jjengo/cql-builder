@@ -2,6 +2,7 @@ from cassandra.cluster import Cluster
 from cassandra import ConsistencyLevel as Level
 from cql_builder.assignment import *
 from cql_builder.condition import *
+from cql_builder.selection import *
 from cql_builder.builder import QueryBuilder
 
 if __name__ == '__main__':
@@ -67,8 +68,43 @@ if __name__ == '__main__':
 		.where(eq('last', 'bar'))
 	)
 
+	# UPDATE ... SET friends=friends - ['baz'] WHERE last='bar'
+	(QueryBuilder.update(keyspace, column_family)
+		.set(Subtract('friends', ['baz']))
+		.where(eq('last', 'bar'))
+	)
+
 	# UPDATE ... SET interests={'sports': 'football', 'language': 'python'} WHERE last='bar'
 	(QueryBuilder.update(keyspace, column_family)
 		.set(Set(interests={'sports': 'football', 'language': 'python'}))
 		.where(eq('last', 'bar'))
+	)
+
+	# SELECT * FROM ...
+	(QueryBuilder.select_from(keyspace, column_family)
+		.all()
+	)
+
+	# SELECT * FROM ... WHERE first='foo' AND last='bar'
+	(QueryBuilder.select_from(keyspace, column_family)
+		.all()
+		.where(all_eq(first='foo', last='bar'))
+	)
+
+	# SELECT first, last FROM ... WHERE last='bar'
+	(QueryBuilder.select_from(keyspace, column_family)
+		.columns('first', 'last')
+		.where(eq('last', 'bar'))
+	)
+
+	# SELECT COUNT(*) FROM
+	(QueryBuilder.select_from(keyspace, column_family)
+		.count()
+	)
+
+	# SELECT first, last FROM ... WHERE last='bar' LIMIT 5
+	(QueryBuilder.select_from(keyspace, column_family)
+		.columns('first', 'last')
+		.where(eq('last', 'bar'))
+		.limit(5)
 	)
