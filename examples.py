@@ -106,3 +106,20 @@ if __name__ == '__main__':
 		.where(eq('last', 'bar'))
 		.limit(5)
 	)
+
+	# DELETE FROM ... WHERE last='bar'
+	(QueryBuilder.delete_from(keyspace, column_family)
+		.where(eq('last', 'bar'))
+	)
+
+	# DELETE friends, interests FROM ... WHERE last='bar'
+	(QueryBuilder.delete_from(keyspace, column_family)
+		.columns('friends', 'interests')
+		.where(eq('last', 'bar'))
+	)
+
+	# DELETE interests['sports'] FROM ... WHERE last='bar'
+	(QueryBuilder.delete_from(keyspace, column_family)
+		.at('interests', 'sports')
+		.where(eq('last', 'bar'))
+	)

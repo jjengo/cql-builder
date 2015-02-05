@@ -3,7 +3,7 @@ from cassandra.query import SimpleStatement
 from cql_builder.base import Statement, Assignment, ValidationError
 from cql_builder.condition import Where, Using, Limit
 from cql_builder.assignment import Set, SetAt, Add, Subtract
-from cql_builder.selection import Columns, Count, All
+from cql_builder.selection import Columns, ValueAt, Count, All
 
 class Insert(Statement):
 
@@ -76,7 +76,7 @@ class Update(Statement):
 	def subtract(self, name, value):
 		self.assignment = Subtract(name, value)
 		return self
-		
+
 	def where(self, *args):
 		self.conditions = Where(*args)
 		return self
@@ -102,8 +102,6 @@ class Update(Statement):
 			raise ValidationError('conditions: {}'.format(self.conditions))
 		if self.assignment is None:
 			raise ValidationError('assignment: {}'.format(self.assignment))
-		if not isinstance(self.assignment, Assignment):
-			raise ValidationError('assignment {!r} must be of the type Assignment'.format(self.assignment))
 
 class Select(Statement):
 
@@ -146,7 +144,7 @@ class Select(Statement):
 
 	def statement(self, consistency=Level.ONE):
 		select = SimpleStatement(self.cql, consistency_level=consistency)
-		args = []
+		args = list(self.selection.values)
 		if self.conditions:
 			args.extend(self.conditions.values)
 		if self.lim:
@@ -157,4 +155,42 @@ class Select(Statement):
 		if self.selection is None:
 			raise ValidationError('selection: {}'.format(self.selection))
 
+class Delete(Statement):
 
+	def __init__(self, keyspace, column_family):
+		Statement.__init__(self, keyspace, column_family)
+		self.selection = None
+		self.conditions = None
+
+	def columns(self, *args):
+		self.selection = Columns(*args)
+		return self
+
+	def at(self, name, key):
+		self.selection = ValueAt(name, key)
+		return self
+
+	def where(self, *args):
+		self.conditions = Where(*args)
+		return self
+
+	@property
+	def cql(self):
+		self.validate()
+		query = 'DELETE'
+		if self.selection:
+			query = '{} {}'.format(query, self.selection.cql)
+		query = '{} FROM {}.{} WHERE {}'.format(query, self.keyspace, self.column_family, self.conditions.cql)
+		return query
+
+	def statement(self, consistency=Level.ONE):
+		delete = SimpleStatement(self.cql, consistency_level=consistency)
+		args = []
+		if self.selection:
+			args.extend(self.selection.values)
+		args.extend(self.conditions.values)
+		return delete, args
+
+	def validate(self):
+		if self.conditions is None:
+			raise ValidationError('conditions: {}'.format(self.conditions))

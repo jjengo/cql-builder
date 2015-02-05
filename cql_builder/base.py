@@ -15,6 +15,11 @@ class Condition(QueryItem):
 	def values(self):
 		raise NotImplementedError('values not implemented')
 
+class Selection(QueryItem):
+	@property
+	def values(self):
+		raise NotImplementedError('values not implemented')
+
 class Statement(QueryItem):
 	def __init__(self, keyspace, column_family):
 		self.keyspace = keyspace
@@ -23,9 +28,6 @@ class Statement(QueryItem):
 		raise NotImplementedError('statement not implemented')
 	def validate(self):
 		raise NotImplementedError('validate not implemented')
-
-class Selection(QueryItem):
-	pass
 
 class ValidationError(ValueError):
 	pass
