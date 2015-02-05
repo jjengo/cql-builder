@@ -1,9 +1,7 @@
 from cassandra.cluster import Cluster
 from cassandra import ConsistencyLevel as Level
-from cql_builder.assignment import *
-from cql_builder.condition import *
-from cql_builder.selection import *
 from cql_builder.builder import QueryBuilder
+from cql_builder.condition import *
 
 if __name__ == '__main__':
 
@@ -27,14 +25,14 @@ if __name__ == '__main__':
 	# UPDATE ... USING TTL 3600 SET age=13 WHERE first='foo' AND last='bar'
 	(QueryBuilder.update(keyspace, column_family)
 		.using(ttl=3600)
-		.set(Set(age=13))
+		.set(age=13)
 		.where(all_eq(first='foo', last='bar'))
 	)
 
 	# UPDATE ... USING TTL 3600 SET age=13 WHERE first='foo' AND last='bar'
 	(QueryBuilder.update(keyspace, column_family)
 		.using(ttl=3600)
-		.set(Set(age=13))
+		.set(age=13)
 		.where(
 			eq('first', 'foo'),
 			eq('last', 'bar')
@@ -43,7 +41,7 @@ if __name__ == '__main__':
 
 	# UPDATE ... SET first='foo' WHERE age>13 AND age<=15
 	(QueryBuilder.update(keyspace, column_family)
-		.set(Set(first='foo'))
+		.set(first='foo')
 		.where(
 			gt('age', 13),
 			lte('age', 25)
@@ -52,31 +50,31 @@ if __name__ == '__main__':
 
 	# UPDATE ... SET age=13 WHERE names IN ('foo', 'bar')
 	(QueryBuilder.update(keyspace, column_family)
-		.set(Set(age=13))
+		.set(age=13)
 		.where(within('names', ['foo', 'bar']))
 	)
 
 	# UPDATE ... SET names['first'] = 'foo' WHERE last='bar'
 	(QueryBuilder.update(keyspace, column_family)
-		.set(SetAt('names', 'first', 'foo'))
+		.set_at('names', 'first', 'foo')
 		.where(all_eq(last='bar'))
 	)
 
 	# UPDATE ... SET ages=ages + {13, 15} WHERE last='bar'
 	(QueryBuilder.update(keyspace, column_family)
-		.set(Add('ages', set([13, 25])))
+		.add('ages', set([13, 25]))
 		.where(eq('last', 'bar'))
 	)
 
 	# UPDATE ... SET friends=friends - ['baz'] WHERE last='bar'
 	(QueryBuilder.update(keyspace, column_family)
-		.set(Subtract('friends', ['baz']))
+		.subtract('friends', ['baz'])
 		.where(eq('last', 'bar'))
 	)
 
 	# UPDATE ... SET interests={'sports': 'football', 'language': 'python'} WHERE last='bar'
 	(QueryBuilder.update(keyspace, column_family)
-		.set(Set(interests={'sports': 'football', 'language': 'python'}))
+		.set(interests={'sports': 'football', 'language': 'python'})
 		.where(eq('last', 'bar'))
 	)
 

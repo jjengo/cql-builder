@@ -2,7 +2,7 @@ from cassandra import ConsistencyLevel as Level
 from cassandra.query import SimpleStatement
 from cql_builder.base import Statement, Assignment, ValidationError
 from cql_builder.condition import Where, Using, Limit
-from cql_builder.assignment import Set
+from cql_builder.assignment import Set, SetAt, Add, Subtract
 from cql_builder.selection import Columns, Count, All
 
 class Insert(Statement):
@@ -61,10 +61,22 @@ class Update(Statement):
 		self.options = Using(**kwargs)
 		return self
 
-	def set(self, assignment):
-		self.assignment = assignment
+	def set(self, **kwargs):
+		self.assignment = Set(**kwargs)
 		return self
 
+	def set_at(self, name, key, value):
+		self.assignment = SetAt(name, key, value)
+		return self
+
+	def add(self, name, value):
+		self.assignment = Add(name, value)
+		return self
+
+	def subtract(self, name, value):
+		self.assignment = Subtract(name, value)
+		return self
+		
 	def where(self, *args):
 		self.conditions = Where(*args)
 		return self
@@ -87,9 +99,9 @@ class Update(Statement):
 
 	def validate(self):
 		if self.conditions is None:
-			raise ValidationError('update conditions: {}'.format(self.conditions))
+			raise ValidationError('conditions: {}'.format(self.conditions))
 		if self.assignment is None:
-			raise ValidationError('update assignment: {}'.format(self.assignment))
+			raise ValidationError('assignment: {}'.format(self.assignment))
 		if not isinstance(self.assignment, Assignment):
 			raise ValidationError('assignment {!r} must be of the type Assignment'.format(self.assignment))
 
@@ -143,4 +155,6 @@ class Select(Statement):
 
 	def validate(self):
 		if self.selection is None:
-			raise ValidationError('select selection: {}'.format(self.selection))
+			raise ValidationError('selection: {}'.format(self.selection))
+
+
