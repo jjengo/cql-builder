@@ -1,4 +1,4 @@
-from cql_builder.base import Assignment
+from cql_builder.base import Assignment, ValidationError
 
 # {key=value, key=value, ...}
 class Set(Assignment):
@@ -50,3 +50,27 @@ class Subtract(Assignment):
 	@property
 	def values(self):
 		return [self.value]
+
+# assignment, assignment, ...
+class Assignments(Assignment):
+	def __init__(self):
+		self.assignments = []
+	def add(self, *assignment):
+		self.assignments.extend(assignment)
+	@property
+	def cql(self):
+		return ', '.join(assign.cql for assign in self.assignments)
+	@property
+	def values(self):
+		value_list = []
+		for assign in self.assignments:
+			value_list.extend(assign.values)
+		return value_list
+	def validate(self):
+		if not self.assignments:
+			raise ValidationError('assignments is empty')
+		for assign in self.assignments:
+			if assign is None:
+				raise ValidationError('assignment: {}'.format(assign))
+			if not isinstance(assign, Assignment):
+				raise ValidationError('assignment {!r} must be of type Assignment')

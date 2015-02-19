@@ -2,7 +2,7 @@ from cassandra import ConsistencyLevel as Level
 from cassandra.query import SimpleStatement
 from cql_builder.base import Statement, Assignment, ValidationError
 from cql_builder.condition import Where, Using, Limit
-from cql_builder.assignment import Set, SetAt, Add, Subtract
+from cql_builder.assignment import Assignments, Set, SetAt, Add, Subtract
 from cql_builder.selection import Columns, ValueAt, Count, All
 
 class Insert(Statement):
@@ -53,7 +53,7 @@ class Update(Statement):
 
 	def __init__(self, keyspace, column_family):
 		Statement.__init__(self, keyspace, column_family)
-		self.assignment = None
+		self.assignments = Assignments()
 		self.conditions = None
 		self.options = None
 
@@ -62,19 +62,19 @@ class Update(Statement):
 		return self
 
 	def set(self, **kwargs):
-		self.assignment = Set(**kwargs)
+		self.assignments.add(Set(**kwargs))
 		return self
 
 	def set_at(self, name, key, value):
-		self.assignment = SetAt(name, key, value)
+		self.assignments.add(SetAt(name, key, value))
 		return self
 
 	def add(self, name, value):
-		self.assignment = Add(name, value)
+		self.assignments.add(Add(name, value))
 		return self
 
 	def subtract(self, name, value):
-		self.assignment = Subtract(name, value)
+		self.assignments.add(Subtract(name, value))
 		return self
 
 	def where(self, *args):
@@ -87,21 +87,20 @@ class Update(Statement):
 		query = 'UPDATE {}.{}'.format(self.keyspace, self.column_family)
 		if self.options:
 			query = '{} {}'.format(query, self.options.cql)
-		query = '{} SET {} WHERE {}'.format(query, self.assignment.cql, self.conditions.cql)
+		query = '{} SET {} WHERE {}'.format(query, self.assignments.cql, self.conditions.cql)
 		return query
 
 	def statement(self, consistency=Level.ONE):
 		update = SimpleStatement(self.cql, consistency_level=consistency)
 		args = self.options.values if self.options else []
-		args.extend(self.assignment.values)
+		args.extend(self.assignments.values)
 		args.extend(self.conditions.values)
 		return update, args
 
 	def validate(self):
+		self.assignments.validate()
 		if self.conditions is None:
 			raise ValidationError('conditions: {}'.format(self.conditions))
-		if self.assignment is None:
-			raise ValidationError('assignment: {}'.format(self.assignment))
 
 class Select(Statement):
 

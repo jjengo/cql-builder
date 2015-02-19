@@ -72,6 +72,13 @@ if __name__ == '__main__':
 		.where(eq('last', 'bar'))
 	)
 
+	# UPDATE ... SET age=13, friends=friends + {'foo'} WHERE LAST='bar'
+	(QueryBuilder.update(keyspace, column_family)
+		.set(age=13)
+		.add('friends', set(['foo']))
+		.where(eq('last', 'bar'))
+	)
+
 	# UPDATE ... SET interests={'sports': 'football', 'language': 'python'} WHERE last='bar'
 	(QueryBuilder.update(keyspace, column_family)
 		.set(interests={'sports': 'football', 'language': 'python'})

@@ -13,6 +13,7 @@ class Comparison(Condition):
 	def values(self):
 		return [self.value]
 
+# name=value AND name=value AND ...
 class AllEqual(Condition):
 	def __init__(self, **kwargs):
 		self.kwargs = kwargs

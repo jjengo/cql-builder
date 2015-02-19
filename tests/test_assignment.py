@@ -1,6 +1,8 @@
 import unittest
 from unittest import TestCase
-from cql_builder.assignment import Set, SetAt, Add, Subtract
+from cql_builder.base import ValidationError
+from cql_builder.condition import eq
+from cql_builder.assignment import Set, SetAt, Add, Subtract, Assignments
 
 class TestSet(TestCase):
 
@@ -37,6 +39,39 @@ class TestSubtract(TestCase):
 		op = Subtract(name, value)
 		self.assertEquals(op.cql, '{}={} - %s'.format(name, name))
 		self.assertEquals(op.values, [value])	
+
+class TestAssignments(TestCase):
+
+	def test_no_values(self):
+		op = Assignments()
+		self.assertRaises(ValidationError, op.validate)
+
+	def test_none_value(self):
+		op = Assignments()
+		op.add(Set(name='foo'))
+		op.add(None)
+		self.assertRaises(ValidationError, op.validate)
+
+	def test_invalid_instance_value(self):
+		op = Assignments()
+		op.add(Set(name='foo'))
+		op.add(eq('name', 'bar'))
+		self.assertRaises(ValidationError, op.validate)
+
+	def test_value_single(self):
+		op = Assignments()
+		kwargs = {'name': 'bar'}
+		op.add(Set(**kwargs))
+		self.assertEquals(op.cql, '{}=%s'.format(*kwargs.keys()))
+		self.assertEquals(op.values, kwargs.values())
+
+	def test_value_multi(self):
+		op = Assignments()
+		op1 = Set(first='foo')
+		op2 = Set(last='bar')
+		op.add(op1, op2)
+		self.assertEquals(op.cql, '{}, {}'.format(op1.cql, op2.cql))
+		self.assertEquals(op.values, op1.values + op2.values)
 
 if __name__ == '__main__':
 	unittest.main()
