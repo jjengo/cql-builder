@@ -159,5 +159,43 @@ class TestSelect(TestCase):
 		self.assertEquals(statement.query_string, query)
 		self.assertEquals(args, selection.values + limit.values)
 
+class TestDelete(TestCase):
+
+	def setUp(self):
+		self.keyspace = 'test_keyspace'
+		self.column_family = 'test_column_family'
+
+	def get_query(self, condition, selection=None):
+		query = 'DELETE'
+		if selection:
+			query = '{} {}'.format(query, selection.cql)
+		return '{} FROM {}.{} WHERE {}'.format(query, self.keyspace, self.column_family, condition.cql)
+
+	def test_no_condition(self):
+		op = Delete(self.keyspace, self.column_family)
+		self.assertRaises(ValidationError, op.statement)
+
+	def test_no_selection(self):
+		condition = eq('name', 'foo')
+		op = (Delete(self.keyspace, self.column_family)
+			.where(condition)
+		)
+		statement, args = op.statement()
+		query = self.get_query(condition)
+		self.assertEquals(statement.query_string, query)
+		self.assertEquals(args, condition.values)
+
+	def test_selection(self):
+		condition = eq('name', 'foo')
+		selection = Columns('first', 'last')
+		op = (Delete(self.keyspace, self.column_family)
+			.columns(*selection.args)
+			.where(condition)
+		)
+		statement, args = op.statement()
+		query = self.get_query(condition, selection)
+		self.assertEquals(statement.query_string, query)
+		self.assertEquals(args, condition.values + selection.values)
+
 if __name__ == '__main__':
 	unittest.main()
