@@ -4,7 +4,7 @@ from cql_builder.base import ValidationError
 from cql_builder.selection import Columns
 from cql_builder.condition import Using, Where, Limit, eq
 from cql_builder.assignment import Assignments, Set
-from cql_builder.statement import Insert, Update, Select, Delete
+from cql_builder.statement import Insert, Update, Select, Delete, Truncate
 
 class TestInsert(TestCase):
 
@@ -196,6 +196,19 @@ class TestDelete(TestCase):
 		query = self.get_query(condition, selection)
 		self.assertEquals(statement.query_string, query)
 		self.assertEquals(args, condition.values + selection.values)
+
+class TestTruncate(TestCase):
+
+	def setUp(self):
+		self.keyspace = 'test_keyspace'
+		self.column_family = 'test_column_family'
+
+	def test_valid(self):
+		op = Truncate(self.keyspace, self.column_family)
+		statement, args = op.statement()
+		query = 'TRUNCATE {}.{}'.format(self.keyspace, self.column_family)
+		self.assertEquals(statement.query_string, query)
+		self.assertEquals(args, [])
 
 if __name__ == '__main__':
 	unittest.main()

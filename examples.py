@@ -130,3 +130,6 @@ if __name__ == '__main__':
 		.at('interests', 'sports')
 		.where(eq('last', 'bar'))
 	)
+
+	# TRUNCATE ...
+	QueryBuilder.truncate(keyspace, column_family)

@@ -1,4 +1,4 @@
-from cql_builder.statement import Insert, Update, Select, Delete
+from cql_builder.statement import Insert, Update, Select, Delete, Truncate
 
 class QueryBuilder(object):
 
@@ -17,3 +17,7 @@ class QueryBuilder(object):
 	@staticmethod
 	def delete_from(keyspace, column_family):
 		return Delete(keyspace, column_family)
+
+	@staticmethod
+	def truncate(keyspace, column_family):
+		return Truncate(keyspace, column_family)

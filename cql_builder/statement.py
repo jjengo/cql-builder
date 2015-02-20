@@ -193,3 +193,16 @@ class Delete(Statement):
 	def validate(self):
 		if self.conditions is None:
 			raise ValidationError('conditions: {}'.format(self.conditions))
+
+class Truncate(Statement):
+
+	def __init__(self, keyspace, column_family):
+		Statement.__init__(self, keyspace, column_family)
+
+	@property
+	def cql(self):
+		return 'TRUNCATE {}.{}'.format(self.keyspace, self.column_family)
+
+	def statement(self):
+		truncate = SimpleStatement(self.cql)
+		return truncate, []
