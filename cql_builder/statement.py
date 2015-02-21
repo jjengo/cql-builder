@@ -28,10 +28,10 @@ class Insert(Statement):
 	@property
 	def cql(self):
 		self.validate()
-		statement = 'INSERT INTO {}.{} ({}) VALUES ({})'
+		statement = 'INSERT INTO {} ({}) VALUES ({})'
 		names = ', '.join(self.assignment.kwargs.keys())
 		values = ', '.join('%s' for k in self.assignment.values)
-		query = statement.format(self.keyspace, self.column_family, names, values)
+		query = statement.format(self.path, names, values)
 		if self.not_exists:
 			query = '{} IF NOT EXISTS'.format(query)
 		if self.options:
@@ -84,7 +84,7 @@ class Update(Statement):
 	@property
 	def cql(self):
 		self.validate()
-		query = 'UPDATE {}.{}'.format(self.keyspace, self.column_family)
+		query = 'UPDATE {}'.format(self.path)
 		if self.options:
 			query = '{} {}'.format(query, self.options.cql)
 		query = '{} SET {} WHERE {}'.format(query, self.assignments.cql, self.conditions.cql)
@@ -133,8 +133,7 @@ class Select(Statement):
 	@property
 	def cql(self):
 		self.validate()
-		statement = 'SELECT {} FROM {}.{}'
-		query = statement.format(self.selection.cql, self.keyspace, self.column_family)
+		query = 'SELECT {} FROM {}'.format(self.selection.cql, self.path)
 		if self.conditions:
 			query = '{} WHERE {}'.format(query, self.conditions.cql)
 		if self.lim:
@@ -179,7 +178,7 @@ class Delete(Statement):
 		query = 'DELETE'
 		if self.selection:
 			query = '{} {}'.format(query, self.selection.cql)
-		query = '{} FROM {}.{} WHERE {}'.format(query, self.keyspace, self.column_family, self.conditions.cql)
+		query = '{} FROM {} WHERE {}'.format(query, self.path, self.conditions.cql)
 		return query
 
 	def statement(self, consistency=Level.ONE):
@@ -201,7 +200,7 @@ class Truncate(Statement):
 
 	@property
 	def cql(self):
-		return 'TRUNCATE {}.{}'.format(self.keyspace, self.column_family)
+		return 'TRUNCATE {}'.format(self.path)
 
 	def statement(self):
 		truncate = SimpleStatement(self.cql)

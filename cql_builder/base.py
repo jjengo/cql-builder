@@ -23,7 +23,13 @@ class Selection(Expression):
 class Statement(Expression):
 	def __init__(self, keyspace, column_family):
 		self.keyspace = keyspace
-		self.column_family = column_family	
+		self.column_family = column_family
+	@property
+	def path(self):
+		if self.keyspace:
+			return '{}.{}'.format(self.keyspace, self.column_family)
+		else:
+			return self.column_family
 	def statement(self, consistency=Level.ONE):
 		raise NotImplementedError('statement not implemented')
 
