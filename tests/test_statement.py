@@ -1,10 +1,24 @@
 import unittest
 from unittest import TestCase
-from cql_builder.base import ValidationError
+from cql_builder.base import Statement, ValidationError
 from cql_builder.selection import Columns
 from cql_builder.condition import Using, Where, Limit, eq
 from cql_builder.assignment import Assignments, Set
 from cql_builder.statement import Insert, Update, Select, Delete, Truncate
+
+class TestStatement(TestCase):
+
+	def test_full_path(self):
+		keyspace = 'test_keyspace'
+		column_family = 'test_column_family'
+		path = '{}.{}'.format(keyspace, column_family)
+		statement = Statement(keyspace, column_family)
+		self.assertEquals(statement.path, path)
+
+	def test_partial_path(self):
+		column_family = 'test_column_family'
+		statement = Statement(None, column_family)
+		self.assertEquals(statement.path, column_family)
 
 class TestInsert(TestCase):
 
