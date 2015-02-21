@@ -1,6 +1,6 @@
 from cassandra import ConsistencyLevel as Level
 from cassandra.query import SimpleStatement
-from cql_builder.base import Statement, Assignment, ValidationError
+from cql_builder.base import Statement, ValidationError
 from cql_builder.condition import Where, Using, Limit
 from cql_builder.assignment import Assignments, Set, SetAt, Add, Subtract
 from cql_builder.selection import Columns, ValueAt, Count, All
