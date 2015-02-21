@@ -7,8 +7,8 @@ from cql_builder.selection import Columns, ValueAt, Count, All
 
 class Insert(Statement):
 
-	def __init__(self, keyspace, column_family):
-		Statement.__init__(self, keyspace, column_family)
+	def __init__(self, column_family, keyspace=None):
+		Statement.__init__(self, column_family, keyspace)
 		self.assignment = None
 		self.options = None
 		self.not_exists = False
@@ -51,8 +51,8 @@ class Insert(Statement):
 
 class Update(Statement):
 
-	def __init__(self, keyspace, column_family):
-		Statement.__init__(self, keyspace, column_family)
+	def __init__(self, column_family, keyspace=None):
+		Statement.__init__(self, column_family, keyspace)
 		self.assignments = Assignments()
 		self.conditions = None
 		self.options = None
@@ -104,8 +104,8 @@ class Update(Statement):
 
 class Select(Statement):
 
-	def __init__(self, keyspace, column_family):
-		Statement.__init__(self, keyspace, column_family)
+	def __init__(self, column_family, keyspace=None):
+		Statement.__init__(self, column_family, keyspace)
 		self.selection = None
 		self.conditions = None
 		self.lim = None
@@ -155,8 +155,8 @@ class Select(Statement):
 
 class Delete(Statement):
 
-	def __init__(self, keyspace, column_family):
-		Statement.__init__(self, keyspace, column_family)
+	def __init__(self, column_family, keyspace=None):
+		Statement.__init__(self, column_family, keyspace)
 		self.selection = None
 		self.conditions = None
 
@@ -195,8 +195,8 @@ class Delete(Statement):
 
 class Truncate(Statement):
 
-	def __init__(self, keyspace, column_family):
-		Statement.__init__(self, keyspace, column_family)
+	def __init__(self, column_family, keyspace=None):
+		Statement.__init__(self, column_family, keyspace)
 
 	@property
 	def cql(self):
