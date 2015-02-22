@@ -73,4 +73,4 @@ class Assignments(Assignment):
 			if assign is None:
 				raise ValidationError('assignment: {}'.format(assign))
 			if not isinstance(assign, Assignment):
-				raise ValidationError('assignment {!r} must be of type Assignment')
+				raise ValidationError('assignment {!r} must be of type Assignment'.format(assign))
