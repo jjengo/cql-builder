@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='cql-builder',
-      version='0.0.1',
+      version='0.1.0',
       description="CQL generation tool",
       long_description=""" """,
       classifiers=[
