@@ -40,8 +40,8 @@ class TestInsert(TestCase):
 		op = (Insert(self.column_family)
 			.values(**assignment)
 		)
-		statement, args = op.statement()
-		self.assertEquals(statement.query_string, self.get_query(assignment))
+		cql, args = op.statement()
+		self.assertEquals(cql, self.get_query(assignment))
 		self.assertEquals(args, assignment.values())		
 
 	def test_options(self):
@@ -51,9 +51,9 @@ class TestInsert(TestCase):
 			.values(**assignment)
 			.using(**using.options)
 		)
-		statement, args = op.statement()
-		query = '{} {}'.format(self.get_query(assignment), using.cql)
-		self.assertEquals(statement.query_string, query)
+		cql, args = op.statement()
+		query = self.get_query(assignment)
+		self.assertEquals(cql, '{} {}'.format(query, using.cql))
 		self.assertEquals(args, assignment.values() + using.values)
 
 	def test_if_not_exists(self):
@@ -62,9 +62,9 @@ class TestInsert(TestCase):
 			.values(**assignment)
 			.if_not_exists()
 		)
-		statement, args = op.statement()
-		query = '{} IF NOT EXISTS'.format(self.get_query(assignment))
-		self.assertEquals(statement.query_string, query)
+		cql, args = op.statement()
+		query = self.get_query(assignment)
+		self.assertEquals(cql, '{} IF NOT EXISTS'.format(query))
 		self.assertEquals(args, assignment.values())
 
 class TestUpdate(TestCase):
@@ -100,9 +100,8 @@ class TestUpdate(TestCase):
 			.set(**assignment.kwargs)
 			.where(condition)
 		)
-		statement, args = op.statement()
-		query = self.get_query(assignment, condition)
-		self.assertEquals(statement.query_string, query)
+		cql, args = op.statement()
+		self.assertEquals(cql, self.get_query(assignment, condition))
 		self.assertEquals(args, assignment.values + condition.values)
 
 	def test_options(self):
@@ -114,9 +113,8 @@ class TestUpdate(TestCase):
 			.set(**assignment.kwargs)
 			.where(condition)
 		)
-		statement, args = op.statement()
-		query = self.get_query(assignment, condition, using)
-		self.assertEquals(statement.query_string, query)
+		cql, args = op.statement()
+		self.assertEquals(cql, self.get_query(assignment, condition, using))
 		self.assertEquals(args, using.values + assignment.values + condition.values)
 
 class TestSelect(TestCase):
@@ -140,9 +138,8 @@ class TestSelect(TestCase):
 		op = (Select(self.column_family)
 			.columns(*selection.args)
 		)
-		statement, args = op.statement()
-		query = self.get_query(selection)
-		self.assertEquals(statement.query_string, query)
+		cql, args = op.statement()
+		self.assertEquals(cql, self.get_query(selection))
 		self.assertEquals(args, selection.values)
 
 	def test_condition(self):
@@ -152,9 +149,8 @@ class TestSelect(TestCase):
 			.columns(*selection.args)
 			.where(condition)
 		)
-		statement, args = op.statement()
-		query = self.get_query(selection, condition)
-		self.assertEquals(statement.query_string, query)
+		cql, args = op.statement()
+		self.assertEquals(cql, self.get_query(selection, condition))
 		self.assertEquals(args, selection.values + condition.values)
 
 	def test_limit(self):
@@ -164,9 +160,8 @@ class TestSelect(TestCase):
 			.columns(*selection.args)
 			.limit(limit.value)
 		)
-		statement, args = op.statement()
-		query = '{} {}'.format(self.get_query(selection), limit.cql)
-		self.assertEquals(statement.query_string, query)
+		cql, args = op.statement()
+		self.assertEquals(cql, '{} {}'.format(self.get_query(selection), limit.cql))
 		self.assertEquals(args, selection.values + limit.values)
 
 class TestDelete(TestCase):
@@ -189,9 +184,8 @@ class TestDelete(TestCase):
 		op = (Delete(self.column_family)
 			.where(condition)
 		)
-		statement, args = op.statement()
-		query = self.get_query(condition)
-		self.assertEquals(statement.query_string, query)
+		cql, args = op.statement()
+		self.assertEquals(cql, self.get_query(condition))
 		self.assertEquals(args, condition.values)
 
 	def test_selection(self):
@@ -201,9 +195,8 @@ class TestDelete(TestCase):
 			.columns(*selection.args)
 			.where(condition)
 		)
-		statement, args = op.statement()
-		query = self.get_query(condition, selection)
-		self.assertEquals(statement.query_string, query)
+		cql, args = op.statement()
+		self.assertEquals(cql, self.get_query(condition, selection))
 		self.assertEquals(args, condition.values + selection.values)
 
 class TestTruncate(TestCase):
@@ -213,9 +206,8 @@ class TestTruncate(TestCase):
 
 	def test_valid(self):
 		op = Truncate(self.column_family)
-		statement, args = op.statement()
-		query = 'TRUNCATE {}'.format(self.column_family)
-		self.assertEquals(statement.query_string, query)
+		cql, args = op.statement()
+		self.assertEquals(cql, 'TRUNCATE {}'.format(self.column_family))
 		self.assertEquals(args, [])
 
 if __name__ == '__main__':

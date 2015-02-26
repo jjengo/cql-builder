@@ -29,6 +29,7 @@ Conditions which are used in the `where` expression of the statement are in `cql
 ## Execution
 ```python
 from cassandra.cluster import Cluster
+from cassandra.query import SimpleStatement
 from cassandra import ConsistencyLevel as Level
 from cql_builder.builder import QueryBuilder
 
@@ -36,22 +37,24 @@ keyspace = 'keyspace'
 column_family = 'column_family'
 cluster = Cluster(['localhost'])
 
-# Generate & execute statement with full table path.
+# Generate & execute a statement with full table path.
 # INSERT INTO keyspace.column_family (first, last) VALUES ('foo', 'bar')
 session = cluster.connect()
 insert = (QueryBuilder.insert_into(column_family, keyspace)
 	.values(first='foo', last='bar')
 )
-statement, args = insert.statement()
-session.execute(statement, args)
+query, args = insert.statement()
+session.execute(query, args)
 
-# Generate & execute statement with partial table path with specified consistency.
+# Generate & execute a statement with partial table path with specified consistency.
 # INSERT INTO column_family (first, last) VALUES ('foo', 'bar')
 session = cluster.connect(keyspace)
 insert = (QueryBuilder.insert_into(column_family)
 	.values(first='foo', last='bar')
 )
-session.execute(*insert.statement(Level.LOCAL_ONE))
+query, args = insert.statement()
+statement = SimpleStatement(query, consistency=Level.LOCAL_ONE)
+session.execute(statement, args)
 ```
 
 ## Insert

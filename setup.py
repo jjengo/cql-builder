@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='cql-builder',
-      version='0.1.0',
+      version='0.2.0',
       description="CQL generation tool",
       long_description=""" """,
       classifiers=[
@@ -16,9 +16,7 @@ setup(name='cql-builder',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=False,
-      install_requires=[
-          'cassandra-driver>=2.1.0'
-      ],
+      install_requires=[],
       entry_points="""
       # -*- Entry points: -*-
       """,
