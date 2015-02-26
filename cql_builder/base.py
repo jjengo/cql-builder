@@ -1,4 +1,5 @@
 from cassandra import ConsistencyLevel as Level
+from cassandra.query import SimpleStatement
 
 class Expression(object):
 	@property
@@ -30,8 +31,17 @@ class Statement(Expression):
 			return '{}.{}'.format(self.keyspace, self.column_family)
 		else:
 			return self.column_family
+	@property
+	def args(self):
+		return []
+	def validate(self):
+		pass
 	def statement(self, consistency=Level.ONE):
-		raise NotImplementedError('statement not implemented')
+		self.validate()
+		statement = SimpleStatement(self.cql, consistency_level=consistency)
+		return statement, self.args
 
 class ValidationError(ValueError):
 	pass
+
+

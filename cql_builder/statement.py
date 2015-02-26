@@ -1,5 +1,4 @@
 from cassandra import ConsistencyLevel as Level
-from cassandra.query import SimpleStatement
 from cql_builder.base import Statement, ValidationError
 from cql_builder.condition import Where, Using, Limit
 from cql_builder.assignment import Assignments, Set, SetAt, Add, Subtract
@@ -27,7 +26,6 @@ class Insert(Statement):
 
 	@property
 	def cql(self):
-		self.validate()
 		statement = 'INSERT INTO {} ({}) VALUES ({})'
 		names = ', '.join(self.assignment.kwargs.keys())
 		values = ', '.join('%s' for k in self.assignment.values)
@@ -38,12 +36,12 @@ class Insert(Statement):
 			query = '{} {}'.format(query, self.options.cql)		
 		return query
 
-	def statement(self, consistency=Level.ONE):
-		insert = SimpleStatement(self.cql, consistency_level=consistency)
+	@property
+	def args(self):
 		args = list(self.assignment.values)
 		if self.options:
 			args.extend(self.options.values)
-		return insert, args
+		return args
 
 	def validate(self):
 		if self.assignment is None:
@@ -83,19 +81,18 @@ class Update(Statement):
 
 	@property
 	def cql(self):
-		self.validate()
 		query = 'UPDATE {}'.format(self.path)
 		if self.options:
 			query = '{} {}'.format(query, self.options.cql)
 		query = '{} SET {} WHERE {}'.format(query, self.assignments.cql, self.conditions.cql)
 		return query
 
-	def statement(self, consistency=Level.ONE):
-		update = SimpleStatement(self.cql, consistency_level=consistency)
+	@property
+	def args(self):
 		args = self.options.values if self.options else []
 		args.extend(self.assignments.values)
 		args.extend(self.conditions.values)
-		return update, args
+		return args
 
 	def validate(self):
 		self.assignments.validate()
@@ -132,7 +129,6 @@ class Select(Statement):
 
 	@property
 	def cql(self):
-		self.validate()
 		query = 'SELECT {} FROM {}'.format(self.selection.cql, self.path)
 		if self.conditions:
 			query = '{} WHERE {}'.format(query, self.conditions.cql)
@@ -140,14 +136,14 @@ class Select(Statement):
 			query = '{} {}'.format(query, self.lim.cql)
 		return query
 
-	def statement(self, consistency=Level.ONE):
-		select = SimpleStatement(self.cql, consistency_level=consistency)
+	@property
+	def args(self):
 		args = list(self.selection.values)
 		if self.conditions:
 			args.extend(self.conditions.values)
 		if self.lim:
 			args.extend(self.lim.values)
-		return select, args
+		return args
 
 	def validate(self):
 		if self.selection is None:
@@ -174,20 +170,19 @@ class Delete(Statement):
 
 	@property
 	def cql(self):
-		self.validate()
 		query = 'DELETE'
 		if self.selection:
 			query = '{} {}'.format(query, self.selection.cql)
 		query = '{} FROM {} WHERE {}'.format(query, self.path, self.conditions.cql)
 		return query
 
-	def statement(self, consistency=Level.ONE):
-		delete = SimpleStatement(self.cql, consistency_level=consistency)
+	@property
+	def args(self):
 		args = []
 		if self.selection:
 			args.extend(self.selection.values)
 		args.extend(self.conditions.values)
-		return delete, args
+		return args
 
 	def validate(self):
 		if self.conditions is None:
@@ -202,6 +197,3 @@ class Truncate(Statement):
 	def cql(self):
 		return 'TRUNCATE {}'.format(self.path)
 
-	def statement(self):
-		truncate = SimpleStatement(self.cql)
-		return truncate, []
