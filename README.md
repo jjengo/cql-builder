@@ -65,12 +65,13 @@ session.execute(statement, args)
 | `.if_not_exists` | `.if_not_exists()` | set if not exists property |
 
 ```python
+from datetime import timedelta
 from cql_builder.builder import QueryBuilder
 
 # INSERT INTO column_family (first, last) VALUES ('foo', 'bar') USING TTL 3600
 insert = (QueryBuilder.insert_into(column_family)
 	.values(first='foo', last='bar')
-	.using(ttl=3600)
+	.using(ttl=timedelta(hours=1))
 )
 
 # INSERT INTO column_family (last, friends) VALUES ('bar', ['joe', 'schmoe']) USING TTL 10800

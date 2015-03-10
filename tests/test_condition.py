@@ -1,5 +1,6 @@
 import unittest
 from unittest import TestCase
+from datetime import timedelta
 from cql_builder.base import ValidationError
 from cql_builder.condition import AllEqual, In, Where, Using
 from cql_builder.condition import eq, gt, gte, lt, lte
@@ -80,6 +81,11 @@ class TestUsing(TestCase):
 		cond = Using(**kwargs)
 		self.assertEquals(cond.cql, 'USING {} %s AND {} %s'.format(*kwargs.keys()))
 		self.assertEquals(cond.values, kwargs.values())
+
+	def test_option_timedelta(self):
+		kwargs = {'TTL': timedelta(hours=1)}
+		cond = Using(**kwargs)
+		self.assertEquals(cond.values, [3600])
 
 class TestWhere(TestCase):
 

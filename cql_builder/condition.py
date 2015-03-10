@@ -1,3 +1,4 @@
+from datetime import timedelta
 from cql_builder.base import Condition, ValidationError
 
 # name-comparator-value
@@ -67,7 +68,12 @@ class Where(Condition):
 # USING option AND option AND ...
 class Using(Condition):
 	def __init__(self, **kwargs):
-		self.options = {k.upper(): v for k, v in kwargs.iteritems()}
+		self.options = {}
+		for k, v in kwargs.iteritems():
+			if isinstance(v, timedelta):
+				self.options[k.upper()] = int(v.total_seconds())
+			else:
+				self.options[k.upper()] = v
 	@property
 	def cql(self):
 		pairs = ' AND '.join('{} %s'.format(k) for k in self.options.keys())
