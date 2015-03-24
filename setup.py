@@ -1,7 +1,8 @@
 from setuptools import setup, find_packages
+from cql_builder import __version__
 
 setup(name='cql-builder',
-      version='0.2.1',
+      version=__version__,
       description="CQL generation tool",
       long_description=""" """,
       classifiers=[
@@ -12,7 +13,7 @@ setup(name='cql-builder',
       author='Jonathan Jengo',
       author_email='jonathan.jengo@gmail.com',
       url='',
-      license='',
+      license='MIT',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=False,
