@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from cql_builder import __version__
 
 def readme():
-      with open("README") as f:
+      with open("README.md") as f:
             return f.read()
 
 setup(name='cql-builder',
