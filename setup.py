@@ -1,14 +1,10 @@
 from setuptools import setup, find_packages
 from cql_builder import __version__
 
-def readme():
-      with open("README.rst") as f:
-            return f.read()
-
 setup(name='cql-builder',
       version=__version__,
       description="CQL generation tool",
-      long_description=readme(),
+      long_description=""" """,
       classifiers=[
             'Intended Audience :: Developers',
             'License :: OSI Approved :: MIT License'
