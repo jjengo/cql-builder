@@ -6,6 +6,8 @@ setup(name='cql-builder',
       description="CQL generation tool",
       long_description='''
             The cql-builder library is a CQL statement generation tool for Apache Cassandra.
+
+            Documentation: https://github.com/jjengo/cql-builder
       ''',
       classifiers=[
             'Intended Audience :: Developers',
@@ -14,7 +16,7 @@ setup(name='cql-builder',
       keywords='',
       author='Jonathan Jengo',
       author_email='jonathan.jengo@gmail.com',
-      url='',
+      url='https://github.com/jjengo/cql-builder',
       license='MIT',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
