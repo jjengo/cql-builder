@@ -1,14 +1,12 @@
 from setuptools import setup, find_packages
 from cql_builder import __version__
 
-def readme():
-      with open("README.md") as f:
-            return f.read()
-
 setup(name='cql-builder',
       version=__version__,
       description="CQL generation tool",
-      long_description=readme(),
+      long_description='''
+            The cql-builder library is a CQL statement generation tool for Apache Cassandra.
+      ''',
       classifiers=[
             'Intended Audience :: Developers',
             'License :: OSI Approved :: MIT License'
