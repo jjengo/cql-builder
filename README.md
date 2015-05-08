@@ -59,7 +59,7 @@ insert = (QueryBuilder.insert_into(column_family)
 	.values(first='foo', last='bar')
 )
 query, args = insert.statement()
-statement = SimpleStatement(query, consistency=Level.LOCAL_ONE)
+statement = SimpleStatement(query, consistency_level=Level.LOCAL_ONE)
 session.execute(statement, args)
 ```
 
