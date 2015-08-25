@@ -19,20 +19,25 @@ class Selection(Expression):
 		raise NotImplementedError('values not implemented')
 
 class Statement(Expression):
+
 	def __init__(self, column_family, keyspace=None):
 		self.column_family = column_family
 		self.keyspace = keyspace
+
 	@property
 	def path(self):
 		if self.keyspace:
 			return '{}.{}'.format(self.keyspace, self.column_family)
 		else:
 			return self.column_family
+
 	@property
 	def args(self):
 		return []
+
 	def validate(self):
 		pass
+		
 	def statement(self):
 		self.validate()
 		return self.cql, self.args
